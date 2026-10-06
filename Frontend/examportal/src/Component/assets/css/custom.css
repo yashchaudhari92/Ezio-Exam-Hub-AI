@@ -1,0 +1,261 @@
+.logoText{
+    color: rgb(109, 161, 70);
+}
+.bg-blue{
+    background-color: #6674ff;
+}
+
+/* Home page */
+.hero-section{
+    height: 80vh;
+}
+.hero-heading{
+    font-size: 50px;
+}
+.welcomeText{
+    padding: 0;
+    margin: 0;
+    font-size: 20px;
+    font-family: "Playwrite NZ Basic", cursive;
+}
+.para{
+    font-size: 16px;
+    font-family: "Playwrite NZ Basic", cursive;
+    font-weight: 500;
+}
+.hero-subtitle{
+    font-size: 18px;
+}
+
+/* Quiz page */
+.quiz-hero-section{
+    height: 60vh;
+}
+.quiz-hero-heading{
+    font-size: 50px;
+}
+
+.quiz-hero-subtitle{
+    font-size: 18px;
+}
+
+
+/* Responsive */
+@media only screen and (max-width: 400px) {
+    .hero-heading{
+        font-size: 40px;
+    }
+    .quiz-hero-heading{
+        font-size: 40px;
+    }
+}
+
+
+
+
+/* NAVBAR MAIN */
+.nav-container {
+    width: 100%;
+    background: white;
+}
+
+.nav-bar {
+    max-width: 1200px;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+/* LOGO */
+.logo-link {
+    text-decoration: none;
+    color: white;
+    text-align: center;
+}
+
+.logo-img {
+    height: 50px;
+}
+
+.logo-text {
+    color: rgb(109, 161, 70);
+    margin: 0;
+}
+
+/* MENU */
+.nav-menu {
+    list-style: none;
+    display: flex;
+    gap: 35px;
+    align-items: center;
+    margin: 0px !important;
+    padding:0px !important;
+}
+
+.nav-link {
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.nav-link:hover {
+    text-decoration: underline;
+}
+
+/* TOGGLE BUTTON (Mobile Only) */
+.nav-toggle {
+    display: none;
+    font-size: 26px;
+    color: Black;
+    cursor: pointer;
+}
+
+/* DROPDOWN */
+.nav-dropdown {
+    position: relative;
+    cursor: pointer;
+}
+
+.dropdown-toggle::after {
+    content: " ▼";
+    font-size: 12px;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    background: white;
+    top: 35px;
+    right: 0;
+    min-width: 150px;
+    list-style: none;
+    padding: 0;
+    border-radius: 5px;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.dropdown-item {
+    padding: 10px;
+    display: block;
+    text-decoration: none;
+    color: black;
+}
+
+.dropdown-item:hover {
+    background: #eee;
+}
+
+@media (max-width: 768px) {
+    .nav-bar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .nav-toggle {
+        display: block;
+        margin-left: auto;
+        margin-right: 10px;
+    }
+    .nav-menu {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        background: #6674ff;
+        padding: 10px 0;
+        gap: 0px;
+        margin-top: 10px;
+        border-top: 1px solid rgba(255,255,255,0.3);
+    }
+    .nav-menu.nav-menu-active {
+        display: flex;
+    }
+    .nav-menu li {
+        width: 100%;
+        text-align: center;
+        padding: 10px 0;
+    }
+    .dropdown-menu {
+        position: static;
+        width: 100%;
+        background: white;
+        margin-top: 5px;
+    }
+    .navDiv{
+        width: 100%;
+    }
+}
+
+/* Home */
+
+.offerBox{
+    border-top-right-radius: 50px;
+    border-bottom-left-radius: 50px;
+    transition: 0.5s;
+}
+.offerBox:hover{
+    background-color: #6674ff !important;
+}
+.offerBox:hover .offerText{
+    color: white !important;
+}
+.offerBox:hover .offerDuration{
+    color: white !important;
+}
+.offerBox:hover .offerPrice{
+    color: white !important;
+}
+.offerBox:hover .offerButton{    
+    background-color: rgba(var(--bs-warning-rgb),var(--bs-bg-opacity))!important;
+    color: black !important;
+}
+
+
+/* About us */
+.box{
+    transition: 0.5s;
+}
+.box:hover{
+    transform: scale(1.1);
+}
+.faq-item {
+  border-bottom: 1px solid #ddd;
+  padding: 15px 0;
+}
+
+.faq-question {
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+  padding-right: 20px;
+}
+
+.faq-question::after {
+  content: "+";
+  position: absolute;
+  top: -5px;
+  right: 0;
+  font-size: 30px;
+}
+
+.faq-question.active::after {
+  content: "-";  
+  right: 5px;
+  font-size: 30px;
+}
+
+.faq-answer {
+  margin-top: 10px;
+  color: #555;
+  line-height: 1.6;
+}
+
+/* Footer */
+#helpBtn{
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+}
