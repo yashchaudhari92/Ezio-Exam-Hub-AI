@@ -22,6 +22,7 @@ function IntituteTest() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const [loggedInstitute, setLoggedInstitute] = useState(null);
+  const [approvingTestId, setApprovingTestId] = useState(null);
   const [selectedExamType, setSelectedExamType] = useState("");
 
   const [expandedTest, setExpandedTest] = useState(null);
@@ -274,6 +275,49 @@ function IntituteTest() {
 
       showSuccess("Test Deleted Successfully!");
     });
+  };
+
+  /* =========================================
+   APPROVE TEST
+========================================= */
+
+  const approveTest = async (testId) => {
+    if (!loggedInstitute?.email) {
+      alert("Institute login details not found. Please log in again.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Are you sure you want to approve this test? Once approved, it will be available for students."
+    );
+
+    if (!confirmed) return;
+
+    setApprovingTestId(testId);
+
+    try {
+      const params = new URLSearchParams({
+        instituteEmail: loggedInstitute.email,
+      });
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/test/approve-institute/${testId}?${params.toString()}`,
+        { method: "POST" }
+      );
+
+      const message = await response.text();
+
+      if (!response.ok) {
+        throw new Error(message || "Failed to approve test.");
+      }
+
+      await loadTests(loggedInstitute.instituteName);
+      showSuccess("Test approved successfully!");
+    } catch (error) {
+      alert(error.message || "Error approving test.");
+    } finally {
+      setApprovingTestId(null);
+    }
   };
 
   /* =========================================
@@ -601,191 +645,155 @@ function IntituteTest() {
 
           <div className="hidden overflow-x-auto lg:block">
 
-            <table className="w-full min-w-[1100px] text-left">
 
-              <thead className="bg-slate-900 text-xs uppercase tracking-wider text-slate-300">
-
-                <tr>
-                  <th className="px-4 py-4">#</th>
-                  <th className="px-4 py-4">Topic</th>
-                  <th className="px-4 py-4">Exam Type</th>
-                  <th className="px-4 py-4">Language</th>
-                  <th className="px-4 py-4">Duration</th>
-                  <th className="px-4 py-4">Questions</th>
-                  <th className="px-4 py-4">Marks</th>
-                  <th className="px-4 py-4">Passing</th>
-                  <th className="px-4 py-4">Result</th>
-                  <th className="px-4 py-4 text-center">Question Paper</th>
-                  <th className="px-4 py-4 text-center">Actions</th>
-                </tr>
-
-              </thead>
-
-              <tbody className="divide-y divide-slate-100">
-
-                {filteredTests.length === 0 ? (
-
+            <div className="w-full overflow-x-auto rounded-xl">
+              <table className="w-full min-w-[1400px] table-auto text-left">
+                <thead className="bg-slate-900 text-xs uppercase tracking-wider text-slate-300">
                   <tr>
-                    <td colSpan="11" className="px-6 py-16 text-center">
-
-                      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-2xl">
-                        ▤
-                      </div>
-
-                      <h3 className="mt-4 font-bold text-slate-800">
-                        No tests found
-                      </h3>
-
-                      <p className="mt-1 text-sm text-slate-500">
-                        Create your first examination test to get started.
-                      </p>
-
-                    </td>
+                    <th className="whitespace-nowrap px-4 py-4">#</th>
+                    <th className="whitespace-nowrap px-4 py-4">Topic</th>
+                    <th className="whitespace-nowrap px-4 py-4">Exam Type</th>
+                    <th className="whitespace-nowrap px-4 py-4">Language</th>
+                    <th className="whitespace-nowrap px-4 py-4">Duration</th>
+                    <th className="whitespace-nowrap px-4 py-4">Questions</th>
+                    <th className="whitespace-nowrap px-4 py-4">Marks</th>
+                    <th className="whitespace-nowrap px-4 py-4">Passing</th>
+                    <th className="whitespace-nowrap px-4 py-4">Result</th>
+                    <th className="whitespace-nowrap px-4 py-4 text-center">Question Paper</th>
+                    <th className="min-w-[280px] whitespace-nowrap px-4 py-4 text-center">
+                      Actions
+                    </th>
                   </tr>
+                </thead>
 
-                ) : (
-
-                  filteredTests.map((t, i) => (
-
-                    <tr
-                      key={t.id}
-                      className="transition hover:bg-slate-50"
-                    >
-
-                      <td className="px-4 py-4 text-sm font-semibold text-slate-500">
-                        {i + 1}
-                      </td>
-
-                      <td className="px-4 py-4">
-
-                        <p className="max-w-[190px] truncate text-sm font-bold text-slate-900">
-                          {t.topicName}
-                        </p>
-
-                        <p className="mt-0.5 text-xs text-slate-400">
-                          {t.institude}
-                        </p>
-
-                      </td>
-
-                      <td className="px-4 py-4">
-
-                        <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
-                          {t.examType}
-                        </span>
-
-                      </td>
-
-                      <td className="px-4 py-4 text-sm text-slate-600">
-                        {t.language}
-                      </td>
-
-                      <td className="px-4 py-4 text-sm text-slate-600">
-                        {t.duration}
-                      </td>
-
-                      <td className="px-4 py-4 text-sm font-semibold text-slate-700">
-                        {t.testTotalQuestion}
-                      </td>
-
-                      <td className="px-4 py-4 text-sm font-semibold text-slate-700">
-                        {t.testTotalMarks}
-                      </td>
-
-                      <td className="px-4 py-4 text-sm font-semibold text-slate-700">
-                        {t.passingMarks}
-                      </td>
-
-                      <td className="px-4 py-4 text-sm text-slate-600">
-                        {t.resultTime}
-                      </td>
-
-                      <td className="px-4 py-4 text-center">
-
-                        {t.status === "APPROVED" ? (
-
-                          <button
-                            type="button"
-                            onClick={() =>
-                              viewQuestions(t.id, t.examType)
-                            }
-                            className="
-                              rounded-lg bg-cyan-50
-                              px-3 py-2
-                              text-xs font-bold text-cyan-700
-                              transition hover:bg-cyan-100
-                            "
-                          >
-                            View
-                          </button>
-
-                        ) : (
-
-                          <span className="rounded-lg bg-amber-50 px-3 py-2 text-xs font-bold text-amber-700">
-                            Pending
-                          </span>
-
-                        )}
-
-                      </td>
-
-                      <td className="px-4 py-4">
-
-                        <div className="flex justify-center gap-2">
-
-                          <button
-                            type="button"
-                            onClick={() => loadTestForEdit(t.id)}
-                            className="
-                              rounded-lg bg-indigo-50
-                              px-3 py-2
-                              text-xs font-bold text-indigo-700
-                              transition hover:bg-indigo-100
-                            "
-                          >
-                            Edit
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setDeleteId(t.id);
-                              setShowDeleteModal(true);
-                            }}
-                            className="
-                              rounded-lg bg-red-50
-                              px-3 py-2
-                              text-xs font-bold text-red-600
-                              transition hover:bg-red-100
-                            "
-                          >
-                            Delete
-                          </button>
-
+                <tbody className="divide-y divide-slate-100">
+                  {filteredTests.length === 0 ? (
+                    <tr>
+                      <td colSpan="11" className="px-6 py-16 text-center">
+                        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-2xl">
+                          ▤
                         </div>
 
+                        <h3 className="mt-4 font-bold text-slate-800">
+                          No tests found
+                        </h3>
+
+                        <p className="mt-1 text-sm text-slate-500">
+                          Create your first examination test to get started.
+                        </p>
                       </td>
-
                     </tr>
+                  ) : (
+                    filteredTests.map((t, i) => (
+                      <tr key={t.id} className="transition hover:bg-slate-50">
+                        <td className="whitespace-nowrap px-4 py-4 text-sm font-semibold text-slate-500">
+                          {i + 1}
+                        </td>
 
-                  ))
+                        <td className="px-4 py-4">
+                          <p className="max-w-[190px] truncate text-sm font-bold text-slate-900">
+                            {t.topicName}
+                          </p>
+                          <p className="mt-0.5 text-xs text-slate-400">
+                            {t.institude}
+                          </p>
+                        </td>
 
-                )}
+                        <td className="whitespace-nowrap px-4 py-4">
+                          <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
+                            {t.examType}
+                          </span>
+                        </td>
 
-              </tbody>
+                        <td className="whitespace-nowrap px-4 py-4 text-sm text-slate-600">
+                          {t.language}
+                        </td>
 
-            </table>
+                        <td className="whitespace-nowrap px-4 py-4 text-sm text-slate-600">
+                          {t.duration}
+                        </td>
+
+                        <td className="whitespace-nowrap px-4 py-4 text-sm font-semibold text-slate-700">
+                          {t.testTotalQuestion}
+                        </td>
+
+                        <td className="whitespace-nowrap px-4 py-4 text-sm font-semibold text-slate-700">
+                          {t.testTotalMarks}
+                        </td>
+
+                        <td className="whitespace-nowrap px-4 py-4 text-sm font-semibold text-slate-700">
+                          {t.passingMarks}
+                        </td>
+
+                        <td className="whitespace-nowrap px-4 py-4 text-sm text-slate-600">
+                          {t.resultTime}
+                        </td>
+
+                        <td className="whitespace-nowrap px-4 py-4 text-center">
+                          {t.status === "APPROVED" ? (
+                            <button
+                              type="button"
+                              onClick={() => viewQuestions(t.id, t.examType)}
+                              className="inline-flex h-9 items-center justify-center rounded-lg bg-cyan-50 px-4 text-xs font-bold text-cyan-700 transition hover:bg-cyan-100"
+                            >
+                              View
+                            </button>
+                          ) : (
+                            <span className="inline-flex h-9 items-center justify-center rounded-lg bg-amber-50 px-3 text-xs font-bold text-amber-700">
+                              Pending
+                            </span>
+                          )}
+                        </td>
+
+                        <td className="px-4 py-4">
+                          <div className="flex min-w-[260px] items-center justify-center gap-2 whitespace-nowrap">
+                            {t.status === "PENDING" && (
+                              <button
+                                type="button"
+                                onClick={() => approveTest(t.id)}
+                                disabled={approvingTestId === t.id}
+                                className="inline-flex h-9 items-center justify-center rounded-lg bg-emerald-600 px-3 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                              >
+                                {approvingTestId === t.id ? "Approving..." : "Approve"}
+                              </button>
+                            )}
+
+                            <button
+                              type="button"
+                              onClick={() => loadTestForEdit(t.id)}
+                              className="inline-flex h-9 items-center justify-center rounded-lg border border-indigo-200 bg-indigo-50 px-3 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100"
+                            >
+                              Edit
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setDeleteId(t.id);
+                                setShowDeleteModal(true);
+                              }}
+                              className="inline-flex h-9 items-center justify-center rounded-lg border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-700 transition hover:bg-red-100"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+
 
           </div>
 
           {/* MOBILE / TABLET CARDS */}
 
+
           <div className="divide-y divide-slate-100 lg:hidden">
-
             {filteredTests.length === 0 ? (
-
               <div className="px-6 py-16 text-center">
-
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-2xl">
                   ▤
                 </div>
@@ -797,162 +805,207 @@ function IntituteTest() {
                 <p className="mt-1 text-sm text-slate-500">
                   Create your first examination test to get started.
                 </p>
-
               </div>
-
             ) : (
-
               filteredTests.map((t, i) => (
-
-                <div key={t.id} className="p-4">
-
+                <div key={t.id} className="p-4 transition hover:bg-slate-50/70">
+                  {/* Test Header */}
                   <div className="flex items-start justify-between gap-3">
-
-                    <div className="min-w-0">
-
+                    <div className="min-w-0 flex-1">
                       <p className="text-xs font-semibold text-slate-400">
                         Test #{i + 1}
                       </p>
 
-                      <h3 className="mt-1 truncate text-base font-bold text-slate-900">
+                      <h3 className="mt-1 break-words text-base font-bold text-slate-900">
                         {t.topicName}
                       </h3>
 
-                      <p className="mt-1 text-xs text-slate-500">
-                        {t.examType} · {t.language}
-                      </p>
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
+                          {t.examType}
+                        </span>
 
+                        <span className="text-xs text-slate-500">
+                          {t.language}
+                        </span>
+
+                        <span
+                          className={`rounded-full px-2.5 py-1 text-xs font-semibold ${t.status === "APPROVED"
+                              ? "bg-emerald-50 text-emerald-700"
+                              : "bg-amber-50 text-amber-700"
+                            }`}
+                        >
+                          {t.status === "APPROVED" ? "Approved" : "Pending"}
+                        </span>
+                      </div>
                     </div>
 
                     <button
                       type="button"
                       onClick={() => toggleTestRow(t.id)}
-                      className="
-                        flex h-9 w-9 shrink-0
-                        items-center justify-center
-                        rounded-lg border border-slate-200
-                        text-slate-600
-                      "
+                      aria-label={
+                        expandedTest === t.id ? "Collapse test details" : "Expand test details"
+                      }
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-lg font-semibold text-slate-600 shadow-sm transition hover:bg-slate-100"
                     >
                       {expandedTest === t.id ? "−" : "+"}
                     </button>
-
                   </div>
 
-                  <div className="mt-3 flex flex-wrap gap-2">
+                  {/* Test Summary */}
+                  <div className="mt-4 grid grid-cols-3 gap-2">
+                    <div className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                        Questions
+                      </p>
+                      <p className="mt-1 text-sm font-bold text-slate-800">
+                        {t.testTotalQuestion}
+                      </p>
+                    </div>
 
-                    <span className="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">
-                      {t.testTotalQuestion} Questions
-                    </span>
+                    <div className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                        Total Marks
+                      </p>
+                      <p className="mt-1 text-sm font-bold text-slate-800">
+                        {t.testTotalMarks}
+                      </p>
+                    </div>
 
-                    <span className="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">
-                      {t.testTotalMarks} Marks
-                    </span>
-
-                    <span className="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">
-                      {t.duration}
-                    </span>
-
+                    <div className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                        Duration
+                      </p>
+                      <p className="mt-1 break-words text-sm font-bold text-slate-800">
+                        {t.duration}
+                      </p>
+                    </div>
                   </div>
 
+                  {/* Expanded Details */}
                   {expandedTest === t.id && (
+                    <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                      <h4 className="mb-3 text-sm font-bold text-slate-800">
+                        Test Details
+                      </h4>
 
-                    <div className="mt-4 rounded-xl bg-slate-50 p-4">
-
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-
-                        <div>
-                          <p className="text-xs text-slate-400">
-                            Organization
-                          </p>
-                          <p className="mt-1 font-semibold text-slate-700">
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-4 text-sm">
+                        <div className="min-w-0">
+                          <p className="text-xs text-slate-400">Organization</p>
+                          <p className="mt-1 break-words font-semibold text-slate-700">
                             {t.institude}
                           </p>
                         </div>
 
                         <div>
-                          <p className="text-xs text-slate-400">
-                            Exam Type
-                          </p>
+                          <p className="text-xs text-slate-400">Exam Type</p>
                           <p className="mt-1 font-semibold text-slate-700">
                             {t.examType}
                           </p>
                         </div>
 
                         <div>
-                          <p className="text-xs text-slate-400">
-                            Passing Marks
+                          <p className="text-xs text-slate-400">Language</p>
+                          <p className="mt-1 font-semibold text-slate-700">
+                            {t.language}
                           </p>
+                        </div>
+
+                        <div>
+                          <p className="text-xs text-slate-400">Passing Marks</p>
                           <p className="mt-1 font-semibold text-slate-700">
                             {t.passingMarks}
                           </p>
                         </div>
 
                         <div>
-                          <p className="text-xs text-slate-400">
-                            Result Time
-                          </p>
+                          <p className="text-xs text-slate-400">Result Time</p>
                           <p className="mt-1 font-semibold text-slate-700">
-                            {t.resultTime}
+                            {t.resultTime || "-"}
                           </p>
                         </div>
 
+                        <div>
+                          <p className="text-xs text-slate-400">Status</p>
+                          <p className="mt-1 font-semibold text-slate-700">
+                            {t.status || "PENDING"}
+                          </p>
+                        </div>
                       </div>
 
-                      <div className="mt-4 flex flex-wrap gap-2">
+                      {/* Question Paper */}
+                      <div className="mt-5 border-t border-slate-100 pt-4">
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                          Question Paper
+                        </p>
 
                         {t.status === "APPROVED" ? (
-
                           <button
                             type="button"
-                            onClick={() =>
-                              viewQuestions(t.id, t.examType)
-                            }
-                            className="rounded-lg bg-cyan-50 px-3 py-2 text-xs font-bold text-cyan-700"
+                            onClick={() => viewQuestions(t.id, t.examType)}
+                            className="inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-cyan-200 bg-cyan-50 px-4 py-2.5 text-sm font-semibold text-cyan-700 transition hover:bg-cyan-100"
                           >
                             View Questions
                           </button>
-
                         ) : (
-
-                          <span className="rounded-lg bg-amber-50 px-3 py-2 text-xs font-bold text-amber-700">
-                            Pending Approval
-                          </span>
-
+                          <div className="rounded-xl bg-amber-50 px-3 py-2.5 text-center text-sm font-semibold text-amber-700">
+                            Available after approval
+                          </div>
                         )}
-
-                        <button
-                          type="button"
-                          onClick={() => loadTestForEdit(t.id)}
-                          className="rounded-lg bg-indigo-50 px-3 py-2 text-xs font-bold text-indigo-700"
-                        >
-                          Edit
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setDeleteId(t.id);
-                            setShowDeleteModal(true);
-                          }}
-                          className="rounded-lg bg-red-50 px-3 py-2 text-xs font-bold text-red-600"
-                        >
-                          Delete
-                        </button>
-
                       </div>
 
+                      {/* Actions */}
+                      <div className="mt-4 border-t border-slate-100 pt-4">
+                        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                          Actions
+                        </p>
+
+                        <div className="grid grid-cols-2 gap-2">
+                          {t.status === "PENDING" && (
+                            <button
+                              type="button"
+                              onClick={() => approveTest(t.id)}
+                              disabled={approvingTestId === t.id}
+                              className="col-span-2 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              {approvingTestId === t.id ? (
+                                <>
+                                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                                  Approving...
+                                </>
+                              ) : (
+                                "✓ Approve Test"
+                              )}
+                            </button>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={() => loadTestForEdit(t.id)}
+                            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2.5 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-100"
+                          >
+                            Edit Test
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setDeleteId(t.id);
+                              setShowDeleteModal(true);
+                            }}
+                            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-100"
+                          >
+                            Delete Test
+                          </button>
+                        </div>
+                      </div>
                     </div>
-
                   )}
-
                 </div>
-
               ))
-
             )}
-
           </div>
+
 
         </section>
 
@@ -1172,8 +1225,8 @@ function IntituteTest() {
                 </button>
 
               </div>
-              <br/>
-              <br/>
+              <br />
+              <br />
 
             </form>
 
@@ -1395,8 +1448,8 @@ function IntituteTest() {
                 </button>
 
               </div>
-              <br/>
-              <br/>
+              <br />
+              <br />
 
 
             </form>

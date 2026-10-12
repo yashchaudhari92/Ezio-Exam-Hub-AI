@@ -19,8 +19,6 @@ function UploadTest() {
   // Search
   const [searchEmail, setSearchEmail] = useState("");
 
-  // Approve
-  const [selectedTests, setSelectedTests] = useState([]);
   const [filterType, setFilterType] = useState("ALL");
 
   /* =========================================================
@@ -164,80 +162,6 @@ function UploadTest() {
   };
 
   /* =========================================================
-     APPROVE ALL TESTS
-  ========================================================= */
-
-  const approveAllTests = () => {
-    fetch(`${API_BASE_URL}/api/test/approve-all`, {
-      method: "POST",
-    })
-      .then((res) => res.text())
-      .then((msg) => {
-        alert(msg);
-        loadTests();
-      })
-      .catch(() => alert("Error approving tests"));
-  };
-
-  /* =========================================================
-     SELECT ALL PENDING TESTS
-  ========================================================= */
-
-  const handleCheckAll = () => {
-    const pendingIds = filteredTests
-      .filter((t) => t.status !== "APPROVED")
-      .map((t) => t.id);
-
-    const allSelected = pendingIds.every((id) =>
-      selectedTests.includes(id)
-    );
-
-    if (allSelected) {
-      setSelectedTests([]);
-    } else {
-      setSelectedTests(pendingIds);
-    }
-  };
-
-  /* =========================================================
-     SELECT SINGLE TEST
-  ========================================================= */
-
-  const handleSingleCheck = (id) => {
-    setSelectedTests((prev) =>
-      prev.includes(id)
-        ? prev.filter((x) => x !== id)
-        : [...prev, id]
-    );
-  };
-
-  /* =========================================================
-     APPROVE SELECTED TESTS
-  ========================================================= */
-
-  const approveSelectedTests = () => {
-    if (selectedTests.length === 0) {
-      alert("Please select at least one test");
-      return;
-    }
-
-    fetch(`${API_BASE_URL}/api/test/approve-selected`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(selectedTests),
-    })
-      .then((res) => res.text())
-      .then((msg) => {
-        showSuccess(msg || "Selected tests approved!");
-        setSelectedTests([]);
-        loadTests();
-      })
-      .catch(() => alert("Error approving tests"));
-  };
-
-  /* =========================================================
      FILTER TESTS
   ========================================================= */
 
@@ -271,11 +195,6 @@ function UploadTest() {
     (t) => t.status === "APPROVED"
   ).length;
 
-  const allPendingSelected =
-    filteredTests
-      .filter((t) => t.status !== "APPROVED")
-      .every((t) => selectedTests.includes(t.id));
-
   /* =========================================================
      UI
   ========================================================= */
@@ -301,7 +220,7 @@ function UploadTest() {
             </h1>
 
             <p className="mt-0.5 text-xs text-slate-500">
-              Review, approve and manage organization test submissions.
+              View and manage organization test submissions.
             </p>
           </div>
 
@@ -534,29 +453,6 @@ function UploadTest() {
                 Approved
               </button>
 
-              <button
-                type="button"
-                onClick={approveSelectedTests}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-2 text-[11px] font-semibold text-white transition hover:bg-indigo-700"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-3.5 w-3.5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-
-                Approve Selected
-              </button>
-
             </div>
 
           </div>
@@ -579,7 +475,7 @@ function UploadTest() {
               </h2>
 
               <p className="mt-0.5 text-[10px] text-slate-500">
-                Select pending tests to approve them.
+                Review test submissions and their current status.
               </p>
             </div>
 
@@ -598,25 +494,6 @@ function UploadTest() {
               <thead>
 
                 <tr className="border-b border-slate-200 bg-slate-50">
-
-                  <th className="w-24 px-3 py-3 text-center">
-
-                    <label className="flex cursor-pointer flex-col items-center gap-1">
-
-                      <input
-                        type="checkbox"
-                        onChange={handleCheckAll}
-                        checked={allPendingSelected}
-                        className="h-3.5 w-3.5 cursor-pointer rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                      />
-
-                      <span className="text-[9px] font-bold uppercase tracking-wide text-slate-500">
-                        Check All
-                      </span>
-
-                    </label>
-
-                  </th>
 
                   <th className="px-3 py-3 text-center text-[9px] font-bold uppercase tracking-wider text-slate-500">
                     Sr. No
@@ -655,22 +532,6 @@ function UploadTest() {
                       key={t.id}
                       className="transition hover:bg-slate-50"
                     >
-
-                      {/* CHECKBOX */}
-
-                      <td className="px-3 py-3 text-center">
-
-                        <input
-                          type="checkbox"
-                          checked={selectedTests.includes(t.id)}
-                          disabled={t.status === "APPROVED"}
-                          onChange={() =>
-                            handleSingleCheck(t.id)
-                          }
-                          className="h-3.5 w-3.5 cursor-pointer rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-40"
-                        />
-
-                      </td>
 
                       {/* NUMBER */}
 

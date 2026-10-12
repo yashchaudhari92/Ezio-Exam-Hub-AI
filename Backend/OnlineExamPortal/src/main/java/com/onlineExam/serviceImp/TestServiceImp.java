@@ -210,75 +210,63 @@ public class TestServiceImp implements TestService {
         questionsRepo.deleteAll(questionsRepo.findByTestId(testId));
         testRepo.deleteById(testId);
     }
-    
-    
-    @Override
-    public void approveAllPendingTests() {
 
-        List<Test> pendingTests = testRepo.findByStatus("PENDING");
+    @Override
+    @Transactional
+    public void approveInstituteTest(Long testId, String instituteEmail) {
+
+        Test test = testRepo.findById(testId)
+                .orElseThrow(() -> new RuntimeException("Test not found"));
+
+        if (instituteEmail == null
+                || test.getInstitudeEmail() == null
+                || !test.getInstitudeEmail().equalsIgnoreCase(instituteEmail.trim())) {
+            throw new RuntimeException("You cannot approve another institute's test");
+        }
+
+        if (!"PENDING".equalsIgnoreCase(test.getStatus())) {
+            throw new RuntimeException("Only pending tests can be approved");
+        }
+
         List<Questions> mcqQuestions = new ArrayList<>();
 
-        for (Test test : pendingTests) {
-            if ("MCQ".equalsIgnoreCase(test.getExamType())) {
-                mcqQuestions.addAll(test.getQuestions());
-            }
+        if ("MCQ".equalsIgnoreCase(test.getExamType())) {
+            mcqQuestions.addAll(test.getQuestions());
         }
-        // SINGLE AI CALL
-        Map<Long, Map<String, String>> aiResponse =
-                geminiService.generateBulkMCQ(mcqQuestions);
-        for (Questions q : mcqQuestions) {
-            Map<String, String> data = aiResponse.get(q.getQueId());
-            if (data != null) {
 
-                List<String> options = new ArrayList<>();
-                options.add(data.get("option1"));
-                options.add(data.get("option2"));
-                options.add(data.get("option3"));
-                options.add(data.get("option4"));
-                String correctAnswer = data.get("answer");
-                Collections.shuffle(options);
-                // SET OPTIONS
-                q.setOption1(options.get(0));
-                q.setOption2(options.get(1));
-                q.setOption3(options.get(2));
-                q.setOption4(options.get(3));
-                q.setAnswer(correctAnswer);
-                if (q.getMarks() == null) {
-                    q.setMarks(1.0);
+        if (!mcqQuestions.isEmpty()) {
+            Map<Long, Map<String, String>> aiResponse =
+                    geminiService.generateBulkMCQ(mcqQuestions);
+
+            for (Questions q : mcqQuestions) {
+                Map<String, String> data =
+                        aiResponse == null ? null : aiResponse.get(q.getQueId());
+
+                if (data == null) {
+                    throw new RuntimeException(
+                            "Could not generate MCQ options for question ID: " + q.getQueId());
                 }
-            }
-        }
-        questionsRepo.saveAll(mcqQuestions);
-        // APPROVE TEST
-        for (Test test : pendingTests) {
-            test.setStatus("APPROVED");
-        }
-
-        testRepo.saveAll(pendingTests);
-    }
-    @Override
-    public void approveSelectedTests(List<Long> testIds) {
-        List<Test> tests = testRepo.findAllById(testIds);
-        List<Questions> mcqQuestions = new ArrayList<>();
-        for (Test test : tests) {
-            if ("MCQ".equalsIgnoreCase(test.getExamType())) {
-                mcqQuestions.addAll(test.getQuestions());
-            }
-        }
-        // AI CALL
-        Map<Long, Map<String, String>> aiResponse =
-                geminiService.generateBulkMCQ(mcqQuestions);
-        for (Questions q : mcqQuestions) {
-            Map<String, String> data = aiResponse.get(q.getQueId());
-            if (data != null) {
 
                 List<String> options = new ArrayList<>();
                 options.add(data.get("option1"));
                 options.add(data.get("option2"));
                 options.add(data.get("option3"));
                 options.add(data.get("option4"));
+
+                if (options.stream().anyMatch(option -> option == null || option.isBlank())) {
+                    throw new RuntimeException(
+                            "Generated MCQ options are incomplete for question ID: " + q.getQueId());
+                }
+
                 String correctAnswer = data.get("answer");
+
+                if (correctAnswer == null || correctAnswer.isBlank()) {
+                    throw new RuntimeException(
+                            "Generated correct answer is missing for question ID: " + q.getQueId());
+                }
+
                 Collections.shuffle(options);
+
                 q.setOption1(options.get(0));
                 q.setOption2(options.get(1));
                 q.setOption3(options.get(2));
@@ -289,13 +277,11 @@ public class TestServiceImp implements TestService {
                     q.setMarks(1.0);
                 }
             }
-        }
-        questionsRepo.saveAll(mcqQuestions);
-        // APPROVE ONLY SELECTED
-        for (Test test : tests) {
-            test.setStatus("APPROVED");
+
+            questionsRepo.saveAll(mcqQuestions);
         }
 
-        testRepo.saveAll(tests);
+        test.setStatus("APPROVED");
+        testRepo.save(test);
     }
 }

@@ -73,17 +73,17 @@ public class TestRestController {
 	    }
 	    return response;
 	}
-	
+
 	@PostMapping("/approve-all")
 	public ResponseEntity<?> approveAllTests() {
-	    testService.approveAllPendingTests();
-	    return ResponseEntity.ok("All tests approved!");
+		return ResponseEntity.status(403)
+				.body("Test approval must be performed by the owning institute.");
 	}
-	
+
 	@PostMapping("/approve-selected")
 	public ResponseEntity<?> approveSelectedTests(@RequestBody List<Long> testIds) {
-	    testService.approveSelectedTests(testIds);
-	    return ResponseEntity.ok("Selected tests approved!");
+		return ResponseEntity.status(403)
+				.body("Test approval must be performed by the owning institute.");
 	}
 	
 	@GetMapping("/by-institute/{institude}")
@@ -173,4 +173,20 @@ public class TestRestController {
           return ResponseEntity.status(500).body("Error: " + e.getMessage());
       }
   }
+
+	@PostMapping("/approve-institute/{testId}")
+	public ResponseEntity<?> approveInstituteTest(
+			@PathVariable Long testId,
+			@RequestParam String instituteEmail) {
+
+		try {
+			testService.approveInstituteTest(testId, instituteEmail);
+			return ResponseEntity.ok("Test approved successfully!");
+		} catch (RuntimeException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		} catch (Exception e) {
+			return ResponseEntity.internalServerError()
+					.body("Failed to approve test.");
+		}
+	}
 }

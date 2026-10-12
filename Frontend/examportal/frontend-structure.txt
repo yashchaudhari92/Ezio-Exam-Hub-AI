@@ -1,6 +1,8 @@
 build
 public
 src
+.env
+.env.example
 .gitignore
 frontend-structure.txt
 index.html

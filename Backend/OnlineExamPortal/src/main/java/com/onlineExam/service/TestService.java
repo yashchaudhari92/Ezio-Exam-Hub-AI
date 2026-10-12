@@ -22,7 +22,6 @@ public interface TestService {
 
 	
 	void deleteTestById(Long testId) throws Exception;
-	
-	void approveAllPendingTests();
-	void approveSelectedTests(List<Long> testIds);
+
+	void approveInstituteTest(Long testId, String instituteEmail);
 }

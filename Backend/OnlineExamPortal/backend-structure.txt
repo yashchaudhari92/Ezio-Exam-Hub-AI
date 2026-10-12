@@ -18,6 +18,7 @@ pom.xml
 .idea\encodings.xml
 .idea\jarRepositories.xml
 .idea\misc.xml
+.idea\vcs.xml
 .idea\workspace.xml
 .mvn\wrapper
 .mvn\wrapper\maven-wrapper.properties
@@ -119,6 +120,7 @@ src\main\java\com\onlineExam\serviceImp\TestServiceImp.java
 src\main\java\com\onlineExam\serviceImp\UserServiceImp.java
 src\main\resources\static
 src\main\resources\application.properties
+src\main\resources\application.properties.example
 src\main\resources\static\Images
 src\main\resources\static\Images\InstituteLogo
 src\main\resources\static\Images\Payments
@@ -131,6 +133,8 @@ src\main\resources\static\Images\InstituteLogo\1790673695474_gaurav.jpg
 src\main\resources\static\Images\InstituteLogo\1790678234124_g.png
 src\main\resources\static\Images\InstituteLogo\1790678608106_g.png
 src\main\resources\static\Images\InstituteLogo\1790681051953_g.png
+src\main\resources\static\Images\InstituteLogo\1791350516590_g.png
+src\main\resources\static\Images\InstituteLogo\1791786856741_g.png
 src\main\resources\static\Images\Payments\1765436699316_img3-Picsart-AiImageEnhancer.jpg
 src\main\resources\static\Images\Payments\1765437301473_vector.jpg
 src\main\resources\static\Images\Payments\1765443588999_rajeshPatil_(1).png
