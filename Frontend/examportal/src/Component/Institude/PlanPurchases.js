@@ -53,6 +53,34 @@ function PlanPurchases() {
   //   );
   // }
 
+  function parseRegistrationPlan(plan) {
+    if (!plan) {
+      return {
+        duration: "-",
+        price: "-",
+      };
+    }
+
+    // Example:
+    // "12 Month (₹7000)"
+    // "6 Month (₹4000)"
+
+    const match = plan.match(/^(.*?)\s*\(₹\s*([\d,]+)\)$/);
+
+    if (match) {
+      return {
+        duration: match[1].trim(),
+        price: match[2].replace(/,/g, ""),
+      };
+    }
+
+    // Fallback if the plan doesn't contain a price
+    return {
+      duration: plan,
+      price: "-",
+    };
+  }
+
   function loadPlans(institute) {
     let allPlans = [];
 
@@ -61,11 +89,24 @@ function PlanPurchases() {
       $.get(
         `${API_BASE_URL}/api/payment/gateway/${institute.id}`,
         function (gateway) {
+          // allPlans.push({
+          //   paymentImg: institute.paymentImg,
+          //   instituteName: institute.instituteName,
+          //   duration: institute.plan,
+          //   price: "-",
+          //   planDate: institute.planDate,
+          //   planExpiryDate: institute.planExpiryDate,
+          //   gateway: gateway || "MANUAL",
+          //   source: "Registration Time",
+          // });
+
+          const registrationPlan = parseRegistrationPlan(institute.plan);
+
           allPlans.push({
             paymentImg: institute.paymentImg,
             instituteName: institute.instituteName,
-            duration: institute.plan,
-            price: "-",
+            duration: registrationPlan.duration,
+            price: registrationPlan.price,
             planDate: institute.planDate,
             planExpiryDate: institute.planExpiryDate,
             gateway: gateway || "MANUAL",
@@ -75,11 +116,24 @@ function PlanPurchases() {
           loadPurchasedPlans(allPlans, institute);
         }
       ).fail(function () {
+        // allPlans.push({
+        //   paymentImg: institute.paymentImg,
+        //   instituteName: institute.instituteName,
+        //   duration: institute.plan,
+        //   price: "-",
+        //   planDate: institute.planDate,
+        //   planExpiryDate: institute.planExpiryDate,
+        //   gateway: "MANUAL",
+        //   source: "Registration Time",
+        // });
+
+        const registrationPlan = parseRegistrationPlan(institute.plan);
+
         allPlans.push({
           paymentImg: institute.paymentImg,
           instituteName: institute.instituteName,
-          duration: institute.plan,
-          price: "-",
+          duration: registrationPlan.duration,
+          price: registrationPlan.price,
           planDate: institute.planDate,
           planExpiryDate: institute.planExpiryDate,
           gateway: "MANUAL",
@@ -350,14 +404,14 @@ function PlanPurchases() {
 
                               <span
                                 className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${p.gateway === "PHONEPE"
-                                    ? "bg-indigo-50 text-indigo-700"
-                                    : "bg-slate-100 text-slate-600"
+                                  ? "bg-indigo-50 text-indigo-700"
+                                  : "bg-slate-100 text-slate-600"
                                   }`}
                               >
                                 <span
                                   className={`h-1.5 w-1.5 rounded-full ${p.gateway === "PHONEPE"
-                                      ? "bg-indigo-500"
-                                      : "bg-slate-500"
+                                    ? "bg-indigo-500"
+                                    : "bg-slate-500"
                                     }`}
                                 ></span>
 

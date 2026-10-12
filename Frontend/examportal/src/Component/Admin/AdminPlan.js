@@ -6,6 +6,7 @@ function AdminPlan() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const [filteredPlans, setFilteredPlans] = useState([]);
 
@@ -165,16 +166,20 @@ function AdminPlan() {
   }
 
   // ================= SUCCESS MODAL =================
+  // function showSuccessModal() {
+  //   const modalElement = document.getElementById("successModal");
+
+  //   if (!modalElement) return;
+
+  //   const modal = window.bootstrap.Modal.getOrCreateInstance(
+  //     modalElement
+  //   );
+
+  //   modal.show();
+  // }
+
   function showSuccessModal() {
-    const modalElement = document.getElementById("successModal");
-
-    if (!modalElement) return;
-
-    const modal = window.bootstrap.Modal.getOrCreateInstance(
-      modalElement
-    );
-
-    modal.show();
+    setShowSuccess(true);
   }
 
   return (
@@ -300,11 +305,10 @@ function AdminPlan() {
 
                         <td className="whitespace-nowrap px-4 py-4 text-center sm:px-5">
                           <span
-                            className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                              isActive
-                                ? "bg-emerald-50 text-emerald-700"
-                                : "bg-red-50 text-red-700"
-                            }`}
+                            className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${isActive
+                              ? "bg-emerald-50 text-emerald-700"
+                              : "bg-red-50 text-red-700"
+                              }`}
                           >
                             {p.status}
                           </span>
@@ -559,7 +563,7 @@ function AdminPlan() {
       {/* ========================================================= */}
       {/* SUCCESS MODAL */}
       {/* ========================================================= */}
-      <div
+      {/* <div
         className="modal fade"
         id="successModal"
         tabIndex="-1"
@@ -610,7 +614,65 @@ function AdminPlan() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
+
+      {/* =========================================================
+    SUCCESS MODAL
+    ========================================================= */}
+      {showSuccess && (
+        <div className="fixed inset-0 z-[1100] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
+
+            {/* Header */}
+            <div className="flex items-center justify-between bg-emerald-600 px-5 py-4 text-white">
+              <h5 className="text-base font-semibold">
+                Success
+              </h5>
+
+              <button
+                type="button"
+                onClick={() => setShowSuccess(false)}
+                className="text-2xl leading-none text-white/80 transition hover:text-white"
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Message */}
+            <div className="flex flex-col items-center justify-center bg-white px-6 py-8 text-center">
+
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-9 w-9 text-emerald-600"
+                  fill="currentColor"
+                  viewBox="0 0 16 16"
+                >
+                  <path d="M16 8A8 8 0 11.001 8a8 8 0 0115.999 0zM6.97 11.03a.75.75 0 001.06 0l4.992-4.992a.75.75 0 10-1.06-1.06L7.5 9.939 4.53 6.97a.75.75 0 10-1.06 1.06l3.5 3.5z" />
+                </svg>
+              </div>
+
+              <h5 className="font-semibold text-slate-800">
+                {successMessage}
+              </h5>
+
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-center border-t border-slate-100 bg-slate-50 px-5 py-4">
+              <button
+                type="button"
+                onClick={() => setShowSuccess(false)}
+                className="rounded-lg bg-emerald-600 px-6 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
+              >
+                OK
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 }
